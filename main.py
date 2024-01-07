@@ -6,7 +6,7 @@ from routers import main_api_router
 
 
 app = FastAPI(
-    title=""
+    title="To Do"
 )
 
 app.include_router(main_api_router)
