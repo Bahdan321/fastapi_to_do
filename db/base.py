@@ -1,25 +1,20 @@
 from typing import Generator
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-from config import REAL_DATABASE_URL
-
-engine = create_async_engine(
-    REAL_DATABASE_URL,
-    future=True,
-    echo=True,
-    execution_options={"isolation_level": "AUTOCOMMIT"},
+SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
+ 
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 )
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+ 
+Base = declarative_base()
 
-async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
-
-
-async def get_db() -> Generator:
-    """Dependency for getting async session"""
+def get_db():
+    db = SessionLocal()
     try:
-        session: AsyncSession = async_session()
-        yield session
+        yield db
     finally:
-        await session.close()
+        db.close()
